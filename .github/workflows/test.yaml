@@ -1,0 +1,34 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+name: Demonstrate renv profile usage
+
+permissions: read-all
+
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-renv@v2
+      - id: default
+        run: |
+          any(rownames(installed.packages()) == "cowsay")
+          aweek::as.aweek(Sys.Date())
+        shell: Rscript {0}
+      - id: cowsay
+        env:
+          RENV_PROFILE: cowsay
+        run: |
+          renv::restore()
+          any(rownames(installed.packages()) == "cowsay")
+          cowsay::say(aweek::as.aweek(Sys.Date()), by = "cat")
+        shell: Rscript {0}
+
